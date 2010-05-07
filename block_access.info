@@ -1,0 +1,5 @@
+; $Id$
+name = Block Access
+description = Provides flexible block administration access control.
+package = Access control
+core = 6.x

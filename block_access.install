@@ -1,0 +1,39 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * block_access module installation and upgrade code.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function block_access_install() {
+  // We're adding to an existing table, not creating a new one.
+  $ret = array();
+
+  db_add_field($ret, 'blocks_roles', 'permission', array(
+    'type' => 'varchar',
+    'length' => 30,
+  ));
+
+  db_drop_primary_key($ret, 'blocks_roles');
+  db_add_primary_key($ret, 'blocks_roles', array('module', 'delta', 'rid', 'permission'));
+  return $ret;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function block_access_uninstall() {
+  // We're removing fileds from an existing table, not deleting a whole one.
+  $ret = array();
+
+  db_drop_primary_key($ret, 'blocks_roles');
+  db_drop_field($ret, 'blocks_roles', 'permission');
+  db_add_primary_key($ret, 'blocks_roles', array('module', 'delta', 'rid'));
+
+  return $ret;
+}
+
