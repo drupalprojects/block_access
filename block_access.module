@@ -273,24 +273,26 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
 
     // Change the role visibility list to only get values from blocks_roles with no extra permission setting
     $default_role_options = array();
-    $result = db_query("SELECT rid FROM {blocks_roles} WHERE module = '%s' AND delta = '%s' AND permission IS NULL", $form['module'], $form['delta']);
+    $module = $form['module']['#value'];
+    $delta = $form['delta']['#value'];
+    $result = db_query("SELECT rid FROM {blocks_roles} WHERE module = '%s' AND delta = '%s' AND permission =''", $module, $delta);
     while ($role = db_fetch_object($result)) {
       $default_role_options[] = $role->rid;
     }
     $form['role_vis_settings']['roles']['#default_value'] = $default_role_options;
 
     // Add fieldset for each permission
-    block_access_fieldset($form, $role_options, 'view', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'move', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'enable', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'disable', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'config', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'delete', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'config_lang', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'config_spec', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'config_user', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'config_role', $form['module'], $form['delta']);
-    block_access_fieldset($form, $role_options, 'config_page', $form['module'], $form['delta']);
+    block_access_fieldset($form, $role_options, 'view', $module, $delta);
+    block_access_fieldset($form, $role_options, 'move', $module, $delta);
+    block_access_fieldset($form, $role_options, 'enable', $module, $delta);
+    block_access_fieldset($form, $role_options, 'disable', $module, $delta);
+    block_access_fieldset($form, $role_options, 'config', $module, $delta);
+    block_access_fieldset($form, $role_options, 'delete', $module, $delta);
+    block_access_fieldset($form, $role_options, 'config_lang', $module, $delta);
+    block_access_fieldset($form, $role_options, 'config_spec', $module, $delta);
+    block_access_fieldset($form, $role_options, 'config_user', $module, $delta);
+    block_access_fieldset($form, $role_options, 'config_role', $module, $delta);
+    block_access_fieldset($form, $role_options, 'config_page', $module, $delta);
     $form['submit']['#submit'] = array('block_access_config_submit');
     $form['submit']['#weight'] = 99;
 
@@ -378,7 +380,9 @@ function block_access_config_submit($form, &$form_state) {
 function block_access_config_set_roles($perm, $roleset, $module, $delta) {
   $roles = array_filter($roleset);
   db_query("DELETE FROM {blocks_roles} WHERE module = '%s' AND delta = '%s' AND permission = '%s'", $module, $delta, $perm);
-  db_query("INSERT INTO {blocks_roles} (rid, module, delta, permission) VALUES (%d, '%s', '%s', '%s')", $rid, $module, $delta, $perm);
+  foreach($roles as $rid) {
+    db_query("INSERT INTO {blocks_roles} (rid, module, delta, permission) VALUES (%d, '%s', '%s', '%s')", $rid, $module, $delta, $perm);
+  }
 }
 
 // Called on submit of the altered admin form
