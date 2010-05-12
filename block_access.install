@@ -7,33 +7,71 @@
  */
 
 /**
+ * Implementation of hook_schema().
+ */
+function block_access_schema() {
+  $schema['block_access_roles'] = array(
+    'description' => 'Extension of blocks_roles',
+    'fields' => array(
+      'module' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => "The block's origin module, from {blocks}.module.",
+      ),
+      'delta'  => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => "The block's unique delta within module, from {blocks}.delta.",
+      ),
+      'rid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => "The user's role ID from {users_roles}.rid.",
+      ),
+      'permission' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The permission being granted',
+      ),
+    ),
+    'primary key' => array(
+      'module',
+      'delta',
+      'rid',
+      'permission',
+    ),
+    'indexes' => array(
+      'rid' => array('rid'),
+    ),
+  );
+  return $schema;
+}
+
+/**
  * Implementation of hook_install().
  */
 function block_access_install() {
-  // We're adding to an existing table, not creating a new one.
-  $ret = array();
-
-  db_add_field($ret, 'blocks_roles', 'permission', array(
-    'type' => 'varchar',
-    'length' => 30,
-  ));
-
-  db_drop_primary_key($ret, 'blocks_roles');
-  db_add_primary_key($ret, 'blocks_roles', array('module', 'delta', 'rid', 'permission'));
-  return $ret;
+  drupal_install_schema('block_access');
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function block_access_uninstall() {
-  // We're removing fileds from an existing table, not deleting a whole one.
-  $ret = array();
+  drupal_uninstall_schema('block_access');
+}
 
+function block_access_update_6001() {
+  $ret = array();
+  drupal_install_schema('block_access');
+  $ret[] = update_sql("INSERT INTO {block_access_roles} SELECT * FROM {blocks_roles} WHERE permission != ''");
+  $ret[] = update_sql("DELETE FROM {blocks_roles} WHERE permission != ''");
   db_drop_primary_key($ret, 'blocks_roles');
   db_drop_field($ret, 'blocks_roles', 'permission');
   db_add_primary_key($ret, 'blocks_roles', array('module', 'delta', 'rid'));
-
   return $ret;
 }
-

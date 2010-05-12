@@ -84,7 +84,7 @@ function block_access_user_access($module, $delta, $perm) {
   if (!isset($perms[$module][$delta])) $perms[$module][$delta] = array();
   if (!isset($perms[$module][$delta][$perm])) {
     $result = db_query("
-      SELECT rid FROM {blocks_roles}
+      SELECT rid FROM {block_access_roles}
       WHERE module = '%s'
       AND   delta = '%s'
       AND   permission = '%s'",
@@ -271,15 +271,8 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
       $role_options[$role->rid] = $role->name;
     }
 
-    // Change the role visibility list to only get values from blocks_roles with no extra permission setting
-    $default_role_options = array();
     $module = $form['module']['#value'];
     $delta = $form['delta']['#value'];
-    $result = db_query("SELECT rid FROM {blocks_roles} WHERE module = '%s' AND delta = '%s' AND permission =''", $module, $delta);
-    while ($role = db_fetch_object($result)) {
-      $default_role_options[] = $role->rid;
-    }
-    $form['role_vis_settings']['roles']['#default_value'] = $default_role_options;
 
     // Add fieldset for each permission
     block_access_fieldset($form, $role_options, 'view', $module, $delta);
@@ -306,15 +299,17 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
  */
 function block_access_fieldset(&$form, $role_options, $perm, $module, $delta) {
   $default_role_options = array();
-  $result = db_query("SELECT rid FROM {blocks_roles} WHERE module = '%s' AND delta = '%s' AND permission = '%s'", $module, $delta, $perm);
+  $collapsed = TRUE;
+  $result = db_query("SELECT rid FROM {block_access_roles} WHERE module = '%s' AND delta = '%s' AND permission = '%s'", $module, $delta, $perm);
   while ($role = db_fetch_object($result)) {
     $default_role_options[] = $role->rid;
+    $collapsed = FALSE;
   }
   $form['role_'.$perm.'_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Role specific '.$perm.' settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE
+    '#collapsed' => $collapsed
   );
   $form['role_'.$perm.'_settings'][$perm.'_roles'] = array(
     '#type' => 'checkboxes',
@@ -359,7 +354,7 @@ function block_access_check_submit($form, $key, $block) {
 
 // Called on submit of the altered config form
 function block_access_config_submit($form, &$form_state) {
-  // Call the real submit first because it deletes everything from blocks_roles
+  // Call the real submit first because it deletes everything from block_access_roles
   block_admin_configure_submit($form, $form_state);
 
   block_access_config_set_roles('view', $form_state['values']['view_roles'], $form_state['values']['module'], $form_state['values']['delta']);
@@ -379,9 +374,9 @@ function block_access_config_submit($form, &$form_state) {
 
 function block_access_config_set_roles($perm, $roleset, $module, $delta) {
   $roles = array_filter($roleset);
-  db_query("DELETE FROM {blocks_roles} WHERE module = '%s' AND delta = '%s' AND permission = '%s'", $module, $delta, $perm);
+  db_query("DELETE FROM {block_access_roles} WHERE module = '%s' AND delta = '%s' AND permission = '%s'", $module, $delta, $perm);
   foreach($roles as $rid) {
-    db_query("INSERT INTO {blocks_roles} (rid, module, delta, permission) VALUES (%d, '%s', '%s', '%s')", $rid, $module, $delta, $perm);
+    db_query("INSERT INTO {block_access_roles} (rid, module, delta, permission) VALUES (%d, '%s', '%s', '%s')", $rid, $module, $delta, $perm);
   }
 }
 
