@@ -355,20 +355,23 @@ function block_access_check_submit($form, $key, $block) {
 // Called on submit of the altered config form
 function block_access_config_submit($form, &$form_state) {
   // Call the real submit first because it deletes everything from block_access_roles
+  if (!isset($form_state['values']['roles'])) $form_state['values']['roles'] = array();
   block_admin_configure_submit($form, $form_state);
 
-  block_access_config_set_roles('view', $form_state['values']['view_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('move', $form_state['values']['move_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('enable', $form_state['values']['enable_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('disable', $form_state['values']['disable_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('config', $form_state['values']['config_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('delete', $form_state['values']['delete_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('config_lang', $form_state['values']['config_lang_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('config_spec', $form_state['values']['config_spec_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('config_user', $form_state['values']['config_user_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $form_state['values']['module'], $form_state['values']['delta']);
-  block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+  if (isset($form_state['values']['view_roles'])) {
+    block_access_config_set_roles('view', $form_state['values']['view_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('move', $form_state['values']['move_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('enable', $form_state['values']['enable_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('disable', $form_state['values']['disable_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('config', $form_state['values']['config_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('delete', $form_state['values']['delete_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('config_lang', $form_state['values']['config_lang_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('config_spec', $form_state['values']['config_spec_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('config_user', $form_state['values']['config_user_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $form_state['values']['module'], $form_state['values']['delta']);
+    block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $form_state['values']['module'], $form_state['values']['delta']);
   $form_state['redirect'] = 'admin/build/block';
+  }
   return;
 }
 
