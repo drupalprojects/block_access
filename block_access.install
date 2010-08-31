@@ -22,7 +22,7 @@ function block_access_schema() {
       'delta'  => array(
         'type' => 'varchar',
         'length' => 32,
-        'not null' => TRUE,
+        'not null' => FALSE,
         'description' => "The block's unique delta within module, from {blocks}.delta.",
       ),
       'rid' => array(
@@ -75,3 +75,10 @@ function block_access_update_6001() {
   db_add_primary_key($ret, 'blocks_roles', array('module', 'delta', 'rid'));
   return $ret;
 }
+
+function block_access_update_6002() {
+  $ret = array();
+  $ret[] = update_sql("ALTER TABLE {block_access_roles} MODIFY delta varchar(32) NULL");
+  return $ret;
+}
+
