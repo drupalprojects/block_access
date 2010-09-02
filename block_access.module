@@ -413,9 +413,41 @@ function block_access_check_submit($form, $key, $block) {
  * Called on submit of the altered config form
  */
 function block_access_config_submit($form, &$form_state) {
-  if (!isset($form_state['values']['roles'])) $form_state['values']['roles'] = array();
+
+  if (!isset($form_state['values']['roles']))
+    $form_state['values']['roles'] = array();
   $module = $form_state['values']['module'];
   $delta = $form_state['values']['delta'];
+
+  // restore existing values if they were removed from the form
+  $edit = db_fetch_array(db_query("
+    SELECT pages, visibility, custom, title
+    FROM   {blocks}
+    WHERE  module = '%s'
+    AND delta = '%s'",
+    $module, $delta));
+  if (!isset($form_state['values']['pages']))
+    $form_state['values']['pages'] = $edit['pages'];
+  if (!isset($form_state['values']['visibility']))
+    $form_state['values']['pages'] = $edit['visibility'];
+  if (!isset($form_state['values']['custom']))
+    $form_state['values']['pages'] = $edit['custom'];
+  if (!isset($form_state['values']['title']))
+    $form_state['values']['pages'] = $edit['title'];
+
+  if (!isset($form_state['values']['roles'])) {
+    $form_state['values']['roles'] = array();
+    $default_role_options = array();
+    $result = db_query("
+      SELECT rid
+      FROM   {blocks_roles}
+      WHERE  module = '%s'
+      AND    delta = '%s'",
+      $module, $delta);
+    while ($role = db_fetch_object($result)) {
+      $form_state['values']['roles'][] = $role->rid;
+    }
+  }
 
   if (isset($form_state['values']['view_roles'])) {
     block_access_config_set_roles('view',        $form_state['values']['view_roles'], $module, $delta);
@@ -429,7 +461,6 @@ function block_access_config_submit($form, &$form_state) {
     block_access_config_set_roles('config_user', $form_state['values']['config_user_roles'], $module, $delta);
     block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $module, $delta);
     block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $module, $delta);
-    $form_state['redirect'] = 'admin/build/block';
   }
 }
 
