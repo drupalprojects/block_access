@@ -324,6 +324,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
   // Or the other form we're interested in
   elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG) {
 
+    dsm($form);
     $role_options = user_roles();
     $module = $form['module']['#value'];
     $delta = $form['delta']['#value'];
@@ -340,6 +341,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
     block_access_fieldset($form, $role_options, 'config_user', $module, $delta);
     block_access_fieldset($form, $role_options, 'config_role', $module, $delta);
     block_access_fieldset($form, $role_options, 'config_page', $module, $delta);
+    array_unshift($form['#submit'], 'block_access_config_presubmit');
     $form['#submit'][] = 'block_access_config_submit';
     $form['submit']['#weight'] = 99;
 
@@ -410,12 +412,9 @@ function block_access_check_submit($form, $key, $block) {
 }
 
 /*
- * Called on submit of the altered config form
+ * Called on submit, before all other submit handlers to reset removed values
  */
-function block_access_config_submit($form, &$form_state) {
-
-  if (!isset($form_state['values']['roles']))
-    $form_state['values']['roles'] = array();
+function block_access_config_presubmit($form, &$form_state) {
   $module = $form_state['values']['module'];
   $delta = $form_state['values']['delta'];
 
@@ -437,7 +436,6 @@ function block_access_config_submit($form, &$form_state) {
 
   if (!isset($form_state['values']['roles'])) {
     $form_state['values']['roles'] = array();
-    $default_role_options = array();
     $result = db_query("
       SELECT rid
       FROM   {blocks_roles}
@@ -448,6 +446,15 @@ function block_access_config_submit($form, &$form_state) {
       $form_state['values']['roles'][] = $role->rid;
     }
   }
+
+}
+
+/*
+ * Called on submit of the altered config form
+ */
+function block_access_config_submit($form, &$form_state) {
+  $module = $form_state['values']['module'];
+  $delta = $form_state['values']['delta'];
 
   if (isset($form_state['values']['view_roles'])) {
     block_access_config_set_roles('view',        $form_state['values']['view_roles'], $module, $delta);
