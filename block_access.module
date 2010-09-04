@@ -324,7 +324,6 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
   // Or the other form we're interested in
   elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG) {
 
-    dsm($form);
     $role_options = user_roles();
     $module = $form['module']['#value'];
     $delta = $form['delta']['#value'];
