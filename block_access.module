@@ -273,7 +273,6 @@ function block_access_check_perms(&$form, $key, $block) {
 function block_access_check_config_form(&$form) {
   $module = $form['module']['#value'];
   $delta  = $form['delta']['#value'];
-  dsm($form);
 
   if (!block_access_can_config_lang($module, $delta)) {
     unset($form['i18n']);
