@@ -273,6 +273,7 @@ function block_access_check_perms(&$form, $key, $block) {
 function block_access_check_config_form(&$form) {
   $module = $form['module']['#value'];
   $delta  = $form['delta']['#value'];
+  dsm($form);
 
   if (!block_access_can_config_lang($module, $delta)) {
     unset($form['i18n']);
@@ -427,11 +428,11 @@ function block_access_config_presubmit($form, &$form_state) {
   if (!isset($form_state['values']['pages']))
     $form_state['values']['pages'] = $edit['pages'];
   if (!isset($form_state['values']['visibility']))
-    $form_state['values']['pages'] = $edit['visibility'];
+    $form_state['values']['visibility'] = $edit['visibility'];
   if (!isset($form_state['values']['custom']))
-    $form_state['values']['pages'] = $edit['custom'];
+    $form_state['values']['custom'] = $edit['custom'];
   if (!isset($form_state['values']['title']))
-    $form_state['values']['pages'] = $edit['title'];
+    $form_state['values']['title'] = $edit['title'];
 
   if (!isset($form_state['values']['roles'])) {
     $form_state['values']['roles'] = array();
@@ -444,6 +445,13 @@ function block_access_config_presubmit($form, &$form_state) {
     while ($role = db_fetch_object($result)) {
       $form_state['values']['roles'][] = $role->rid;
     }
+  }
+
+  // i18n deletes its config if the fields aren't in the form, so replace them here
+  if (function_exists('i18nblocks_load')) {
+    $i18n = i18nblocks_load($module, $delta);
+    $form_state['values']['language'] = $i18n->language;
+    $form_state['values']['ibid'] = $i18n->ibid;
   }
 
 }
