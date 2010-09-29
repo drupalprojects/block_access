@@ -139,7 +139,8 @@ function block_access_user_access($module, $delta, $perm) {
   if (!isset($perms[$module][$delta])) $perms[$module][$delta] = array();
   if (!isset($perms[$module][$delta][$perm])) {
     $perms[$module][$delta][$perm] = false;
-    foreach(block_access_get_roles($module, $perm, $delta) as $rid) {
+    $roles = block_access_get_roles($module, $perm, $delta);
+    foreach($roles as $rid) {
       if (in_array($rid, array_keys($user->roles))) {
         $perms[$module][$delta][$perm] = true;
         break;
@@ -340,6 +341,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
     block_access_fieldset($form, $role_options, 'config_user', $module, $delta);
     block_access_fieldset($form, $role_options, 'config_role', $module, $delta);
     block_access_fieldset($form, $role_options, 'config_page', $module, $delta);
+    array_unshift($form['#submit'], 'block_access_config_presubmit');
     $form['#submit'][] = 'block_access_config_submit';
     $form['submit']['#weight'] = 99;
 
@@ -410,10 +412,54 @@ function block_access_check_submit($form, $key, $block) {
 }
 
 /*
+ * Called on submit, before all other submit handlers to reset removed values
+ */
+function block_access_config_presubmit($form, &$form_state) {
+  $module = $form_state['values']['module'];
+  $delta = $form_state['values']['delta'];
+
+  // restore existing values if they were removed from the form
+  $edit = db_fetch_array(db_query("
+    SELECT pages, visibility, custom, title
+    FROM   {blocks}
+    WHERE  module = '%s'
+    AND delta = '%s'",
+    $module, $delta));
+  if (!isset($form_state['values']['pages']))
+    $form_state['values']['pages'] = $edit['pages'];
+  if (!isset($form_state['values']['visibility']))
+    $form_state['values']['visibility'] = $edit['visibility'];
+  if (!isset($form_state['values']['custom']))
+    $form_state['values']['custom'] = $edit['custom'];
+  if (!isset($form_state['values']['title']))
+    $form_state['values']['title'] = $edit['title'];
+
+  if (!isset($form_state['values']['roles'])) {
+    $form_state['values']['roles'] = array();
+    $result = db_query("
+      SELECT rid
+      FROM   {blocks_roles}
+      WHERE  module = '%s'
+      AND    delta = '%s'",
+      $module, $delta);
+    while ($role = db_fetch_object($result)) {
+      $form_state['values']['roles'][] = $role->rid;
+    }
+  }
+
+  // i18n deletes its config if the fields aren't in the form, so replace them here
+  if (function_exists('i18nblocks_load')) {
+    $i18n = i18nblocks_load($module, $delta);
+    $form_state['values']['language'] = $i18n->language;
+    $form_state['values']['ibid'] = $i18n->ibid;
+  }
+
+}
+
+/*
  * Called on submit of the altered config form
  */
 function block_access_config_submit($form, &$form_state) {
-  if (!isset($form_state['values']['roles'])) $form_state['values']['roles'] = array();
   $module = $form_state['values']['module'];
   $delta = $form_state['values']['delta'];
 
@@ -429,7 +475,6 @@ function block_access_config_submit($form, &$form_state) {
     block_access_config_set_roles('config_user', $form_state['values']['config_user_roles'], $module, $delta);
     block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $module, $delta);
     block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $module, $delta);
-    $form_state['redirect'] = 'admin/build/block';
   }
 }
 
@@ -476,8 +521,9 @@ function block_access_admin_display_submit($form, &$form_state) {
  * system is somewhat mystical
  */
 function block_access_check_delete($bid) {
-  $box = block_box_get($bid);
-  return block_access_can_delete($box['module'], $box['delta']);
+  // Deletion can only happen with user defined blocks
+  // which are always in the block module
+  return block_access_can_delete('block', $bid);
 }
 
 function block_access_check_config($module, $delta) {
