@@ -521,8 +521,9 @@ function block_access_admin_display_submit($form, &$form_state) {
  * system is somewhat mystical
  */
 function block_access_check_delete($bid) {
-  $box = block_box_get($bid);
-  return block_access_can_delete($box['module'], $box['delta']);
+  // Deletion can only happen with user defined blocks
+  // which are always in the block module
+  return block_access_can_delete('block', $bid);
 }
 
 function block_access_check_config($module, $delta) {
