@@ -42,28 +42,23 @@ function block_access_add_role($rid, $module, $perm, $delta=null) {
 }
 
 function block_access_get_roles($module, $perm, $delta=null) {
+  $ret = array();
   $sql="
     SELECT rid
     FROM {block_access_roles}
     WHERE module = '%s'
     AND   permission = '%s'
+    AND   delta = '%s';
   ";
-  $args = array($module, $perm);
-  if ($delta) {
-    $sql2 = $sql;
-    $sql .= "AND  delta = '%s'";
-    $args[] = $delta;
-  }
-  $result = db_query($sql, $args);
 
-  $ret = array();
+  $result = db_query($sql, $module, $perm, $delta);
   while ($rid = db_result($result)) {
     $ret[] = $rid;
   }
 
   // If we didn't find any for the delta, use the module defaults
   if ($delta && empty($ret)) {
-    $result = db_query($sql2, $module, $perm);
+    $result = db_query($sql, $module, $perm, '');
     while ($rid = db_result($result)) {
       $ret[] = $rid;
     }
