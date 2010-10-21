@@ -372,7 +372,7 @@ function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = n
     '#title' => t('Set permission for specific roles'),
     '#default_value' => $default_role_options,
     '#options' => $role_options,
-    '#description' => t('Set this permission for the selected role(s). If no roles are set the option will be available to all.'),
+    '#description' => t('Set this permission for the selected role(s). If no roles are set then module defaults will be used.'),
   );
 }
 
