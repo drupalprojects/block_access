@@ -448,7 +448,7 @@ function block_access_config_presubmit($form, &$form_state) {
   }
 
   // i18n deletes its config if the fields aren't in the form, so replace them here
-  if (function_exists('i18nblocks_load')) {
+  if (function_exists('i18nblocks_load') && !isset($form_state['values']['language'])) {
     $i18n = i18nblocks_load($module, $delta);
     $form_state['values']['language'] = $i18n->language;
     $form_state['values']['ibid'] = $i18n->ibid;
