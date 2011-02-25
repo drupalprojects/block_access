@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /* 
  * @file block_access.db.inc
  * DB interface for block_access module
