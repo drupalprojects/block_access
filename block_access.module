@@ -475,6 +475,12 @@ function block_access_config_submit($form, &$form_state) {
     block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $module, $delta);
     block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $module, $delta);
   }
+
+  // If user does not have administer blocks permission, we
+  // don't want the form to redirect to admin/build/block
+  if (!user_access('administer blocks')) {
+    $form_state['redirect'] = FALSE;
+  }
 }
 
 /*
