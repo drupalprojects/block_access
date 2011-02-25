@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /* 
  * @file block_access.module
  * This module handles access permissions for the block admin page.

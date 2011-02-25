@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /* 
  * @file block_access.admin.inc
  * Admin interfaces for block_access module
