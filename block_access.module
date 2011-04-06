@@ -1,4 +1,5 @@
 <?php
+// $Id: block_access.module,v 1.1.2.2 2010/05/12 17:26:02 lambic Exp $
 /* 
  * @file block_access.module
  * This module handles access permissions for the block admin page.
@@ -35,6 +36,7 @@ define('BLOCK_ACCESS_MENU_DELETE',   'admin/build/block/delete');
 define('BLOCK_ACCESS_MENU_CONFIG',   'admin/build/block/configure');
 define('BLOCK_ACCESS_FORM_ADMIN',    'block_admin_display_form');
 define('BLOCK_ACCESS_FORM_CONFIG',   'block_admin_configure');
+define('BLOCK_ACCESS_FORM_ADD',      'block_add_block_form');
 
 /*
  * Implementation of hook_init()
@@ -322,7 +324,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
     $form['#submit'][] = 'block_access_admin_display_submit';
   }
   // Or the other form we're interested in
-  elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG) {
+  elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG || $form_id == BLOCK_ACCESS_FORM_ADD) {
 
     $role_options = user_roles();
     $module = $form['module']['#value'];
@@ -371,7 +373,7 @@ function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = n
     '#title' => t('Set permission for specific roles'),
     '#default_value' => $default_role_options,
     '#options' => $role_options,
-    '#description' => t('Set this permission for the selected role(s). If no roles are set then module defaults will be used.'),
+    '#description' => t('Set this permission for the selected role(s). If no roles are set the option will be available to all.'),
   );
 }
 
@@ -474,12 +476,6 @@ function block_access_config_submit($form, &$form_state) {
     block_access_config_set_roles('config_user', $form_state['values']['config_user_roles'], $module, $delta);
     block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $module, $delta);
     block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $module, $delta);
-  }
-
-  // If user does not have administer blocks permission, we
-  // don't want the form to redirect to admin/build/block
-  if (!user_access('administer blocks')) {
-    $form_state['redirect'] = FALSE;
   }
 }
 
