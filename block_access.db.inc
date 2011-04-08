@@ -16,7 +16,7 @@ function block_access_delete_roles($module, $perm, $delta=null) {
     $args[] = $delta;
   }
   else {
-    $sql .= "AND delta IS NULL";
+    $sql .= "AND delta = ''";
   }
   db_query($sql,$args);
 }
