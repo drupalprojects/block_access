@@ -254,10 +254,13 @@ function block_access_check_perms(&$form, $key, $block) {
       }
     }
     else {
-      // Disable the region selection and weight if the user can't move the block
+      // Unset the regions in the region selection if the user can't move the block
       if (!block_access_can_move($module, $delta)) {
-        $form[$key]['region']['#disabled'] = TRUE;
-        $form[$key]['weight']['#disabled'] = TRUE;
+        foreach($form[$key]['region']['#options'] as $option => $value) {
+          if ($option != BLOCK_REGION_NONE && $option != $form[$key]['region']['#default_value']) {
+            unset($form[$key]['region']['#options'][$option]);
+          }
+        }
       }
       // Remove the <none> option from the select list if the user can't disable the block
       if (!block_access_can_disable($module, $delta)) {
