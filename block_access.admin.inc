@@ -1,4 +1,5 @@
 <?php
+// $Id$
 /* 
  * @file block_access.admin.inc
  * Admin interfaces for block_access module
@@ -6,13 +7,8 @@
 
 function block_access_admin_list() {
   $form['list'] = array();
-  $modules = module_implements('block');
-  foreach($modules as $key => $module) {
-    $form['list'][$key] = array(
-      'name' => array('#value' => $module),
-    );
-  }
-  return $form;
+  $modules = module_implements('block_info');
+  return theme('block_access_admin_list', array('modules' => $modules));
 }
 
 function block_access_module_form(&$form_state, $op = NULL, $module = NULL) {
@@ -21,18 +17,18 @@ function block_access_module_form(&$form_state, $op = NULL, $module = NULL) {
     '#type' => 'hidden',
     '#value' => $module
   );
-  $role_options = user_roles();
-  block_access_fieldset($form, $role_options, 'view', $module);
-  block_access_fieldset($form, $role_options, 'move', $module);
-  block_access_fieldset($form, $role_options, 'enable', $module);
-  block_access_fieldset($form, $role_options, 'disable', $module);
-  block_access_fieldset($form, $role_options, 'config', $module);
-  block_access_fieldset($form, $role_options, 'delete', $module);
-  block_access_fieldset($form, $role_options, 'config_lang', $module);
-  block_access_fieldset($form, $role_options, 'config_spec', $module);
-  block_access_fieldset($form, $role_options, 'config_user', $module);
-  block_access_fieldset($form, $role_options, 'config_role', $module);
-  block_access_fieldset($form, $role_options, 'config_page', $module);
+  $roles = user_roles();
+  block_access_fieldset($form, $roles, 'view', $module);
+  block_access_fieldset($form, $roles, 'move', $module);
+  block_access_fieldset($form, $roles, 'enable', $module);
+  block_access_fieldset($form, $roles, 'disable', $module);
+  block_access_fieldset($form, $roles, 'config', $module);
+  block_access_fieldset($form, $roles, 'delete', $module);
+  block_access_fieldset($form, $roles, 'config_lang', $module);
+  block_access_fieldset($form, $roles, 'config_spec', $module);
+  block_access_fieldset($form, $roles, 'config_user', $module);
+  block_access_fieldset($form, $roles, 'config_role', $module);
+  block_access_fieldset($form, $roles, 'config_page', $module);
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
@@ -41,16 +37,17 @@ function block_access_module_form(&$form_state, $op = NULL, $module = NULL) {
 }
 
 function block_access_module_form_submit($form, &$form_state) {
-  $module = $form_state['values']['module'];
-  block_access_config_set_roles('view',        $form_state['values']['view_roles'], $module);
-  block_access_config_set_roles('move',        $form_state['values']['move_roles'], $module);
-  block_access_config_set_roles('enable',      $form_state['values']['enable_roles'], $module);
-  block_access_config_set_roles('disable',     $form_state['values']['disable_roles'], $module);
-  block_access_config_set_roles('config',      $form_state['values']['config_roles'], $module);
-  block_access_config_set_roles('delete',      $form_state['values']['delete_roles'], $module);
-  block_access_config_set_roles('config_lang', $form_state['values']['config_lang_roles'], $module);
-  block_access_config_set_roles('config_spec', $form_state['values']['config_spec_roles'], $module);
-  block_access_config_set_roles('config_user', $form_state['values']['config_user_roles'], $module);
-  block_access_config_set_roles('config_role', $form_state['values']['config_role_roles'], $module);
-  block_access_config_set_roles('config_page', $form_state['values']['config_page_roles'], $module);
+  $values = $form_state['values'];
+  $module = $values['module'];
+  block_access_config_set_roles('view',        $values['view_roles'], $module);
+  block_access_config_set_roles('move',        $values['move_roles'], $module);
+  block_access_config_set_roles('enable',      $values['enable_roles'], $module);
+  block_access_config_set_roles('disable',     $values['disable_roles'], $module);
+  block_access_config_set_roles('config',      $values['config_roles'], $module);
+  block_access_config_set_roles('delete',      $values['delete_roles'], $module);
+  block_access_config_set_roles('config_lang', $values['config_lang_roles'], $module);
+  block_access_config_set_roles('config_spec', $values['config_spec_roles'], $module);
+  block_access_config_set_roles('config_user', $values['config_user_roles'], $module);
+  block_access_config_set_roles('config_role', $values['config_role_roles'], $module);
+  block_access_config_set_roles('config_page', $values['config_page_roles'], $module);
 }

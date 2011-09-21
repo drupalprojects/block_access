@@ -1,4 +1,5 @@
 <?php
+// $Id: block_access.install,v 1.1.2.1 2010/05/12 17:26:02 lambic Exp $
 
 /**
  * @file
@@ -10,7 +11,7 @@
  */
 function block_access_schema() {
   $schema['block_access_roles'] = array(
-    'description' => 'Extension of blocks_roles',
+    'description' => 'Extension of block_role',
     'fields' => array(
       'module' => array(
         'type' => 'varchar',
@@ -48,36 +49,5 @@ function block_access_schema() {
     ),
   );
   return $schema;
-}
-
-/**
- * Implementation of hook_install().
- */
-function block_access_install() {
-  drupal_install_schema('block_access');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function block_access_uninstall() {
-  drupal_uninstall_schema('block_access');
-}
-
-function block_access_update_6001() {
-  $ret = array();
-  drupal_install_schema('block_access');
-  $ret[] = update_sql("INSERT INTO {block_access_roles} SELECT * FROM {blocks_roles} WHERE permission != ''");
-  $ret[] = update_sql("DELETE FROM {blocks_roles} WHERE permission != ''");
-  db_drop_primary_key($ret, 'blocks_roles');
-  db_drop_field($ret, 'blocks_roles', 'permission');
-  db_add_primary_key($ret, 'blocks_roles', array('module', 'delta', 'rid'));
-  return $ret;
-}
-
-function block_access_update_6002() {
-  $ret = array();
-  $ret[] = update_sql("ALTER TABLE {block_access_roles} MODIFY delta varchar(32) NULL");
-  return $ret;
 }
 

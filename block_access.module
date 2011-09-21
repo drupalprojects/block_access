@@ -19,7 +19,7 @@ define('BLOCK_ACCESS_ALL_MOVE',         'Move all blocks');
 define('BLOCK_ACCESS_ALL_ENABLE',       'Enable all blocks');
 define('BLOCK_ACCESS_ALL_DISABLE',      'Disable all blocks');
 define('BLOCK_ACCESS_ALL_DELETE',       'Delete all blocks');
-define('BLOCK_ACCESS_ALL_CONFIG',       'Configure all blocks.');
+define('BLOCK_ACCESS_ALL_CONFIG',       'Configure all blocks. ');
 define('BLOCK_ACCESS_ALL_CONFIG_LANG',  'Configure all language settings');
 define('BLOCK_ACCESS_ALL_CONFIG_SPEC',  'Configure all specific settings');
 define('BLOCK_ACCESS_ALL_CONFIG_USER',  'Configure all user settings');
@@ -30,20 +30,12 @@ define('BLOCK_ACCESS_ALL_CONFIG_PAGE',  'Configure all page settings');
  * Menu/Form items we need to mess with
  * The first is our own settings form, the others we are altering
  */
-define('BLOCK_ACCESS_SETTINGS',      'admin/build/block/block-access');
-define('BLOCK_ACCESS_MENU_ADD',      'admin/build/block/add');
-define('BLOCK_ACCESS_MENU_DELETE',   'admin/build/block/delete');
-define('BLOCK_ACCESS_MENU_CONFIG',   'admin/build/block/configure');
+define('BLOCK_ACCESS_SETTINGS',      'admin/structure/block/block-access');
+define('BLOCK_ACCESS_MENU_ADD',      'admin/structure/block/add');
+define('BLOCK_ACCESS_MENU_DELETE',   'admin/structure/block/delete');
+define('BLOCK_ACCESS_MENU_CONFIG',   'admin/structure/block/configure');
 define('BLOCK_ACCESS_FORM_ADMIN',    'block_admin_display_form');
 define('BLOCK_ACCESS_FORM_CONFIG',   'block_admin_configure');
-define('BLOCK_ACCESS_FORM_ADD',      'block_add_block_form');
-
-/*
- * Implementation of hook_init()
- */
-function block_access_init() {
-  require_once(drupal_get_path('module', 'block_access') .'/block_access.db.inc');
-}
 
 /* 
  * Implementation of hook_theme()
@@ -51,7 +43,7 @@ function block_access_init() {
 function block_access_theme() {
   return array(
     'block_access_admin_list' => array(
-      'arguments' => array('form' => NULL),
+      'variables' => array('modules'),
       'file' => 'block_access.theme.inc'
     ),
   );
@@ -65,12 +57,11 @@ function block_access_menu() {
     'title' => 'Block Access Settings',
     'description' => 'Configure block access defaults',
     'access arguments' => array(BLOCK_ACCESS_ADMIN),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('block_access_admin_list'),
-    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'block_access_admin_list',
+    'type' => MENU_LOCAL_ACTION,
     'file' => 'block_access.admin.inc',
   );
-  $items[BLOCK_ACCESS_SETTINGS.'/edit'] = array(
+  $items[BLOCK_ACCESS_SETTINGS . '/edit'] = array(
     'title' => 'Block Access Settings',
     'description' => 'Configure block access defaults',
     'access arguments' => array(BLOCK_ACCESS_ADMIN),
@@ -103,7 +94,7 @@ function block_access_menu_alter(&$items) {
  *  Valid permissions for this module
  *  @return array An array of valid permissions for the block_access module
  */
-function block_access_perm() {
+function block_access_permission() {
 
   // All the "All blocks" level permissions
   $access = array(
@@ -139,11 +130,12 @@ function block_access_user_access($module, $delta, $perm) {
   if (!isset($perms[$module])) $perms[$module] = array($delta => array());
   if (!isset($perms[$module][$delta])) $perms[$module][$delta] = array();
   if (!isset($perms[$module][$delta][$perm])) {
-    $perms[$module][$delta][$perm] = false;
+    $perms[$module][$delta][$perm] = FALSE;
+    require_once(drupal_get_path('module', 'block_access') . '/block_access.db.inc');
     $roles = block_access_get_roles($module, $perm, $delta);
-    foreach($roles as $rid) {
+    foreach ($roles as $rid) {
       if (in_array($rid, array_keys($user->roles))) {
-        $perms[$module][$delta][$perm] = true;
+        $perms[$module][$delta][$perm] = TRUE;
         break;
       }
     }
@@ -179,7 +171,9 @@ function block_access_can_move($module, $delta) {
       || block_access_user_access($module, $delta, 'move');
 }
 
-// If any of the config perms are on, give access
+/*
+ * If any of the config perms are on, give access
+ */
 function block_access_can_config($module, $delta) {
   return user_access(t(BLOCK_ACCESS_ALL_CONFIG))
       || user_access(t(BLOCK_ACCESS_ALL_CONFIG_LANG))
@@ -254,13 +248,10 @@ function block_access_check_perms(&$form, $key, $block) {
       }
     }
     else {
-      // Unset the regions in the region selection if the user can't move the block
+      // Disable the region selection and weight if the user can't move the block
       if (!block_access_can_move($module, $delta)) {
-        foreach($form[$key]['region']['#options'] as $option => $value) {
-          if ($option != BLOCK_REGION_NONE && $option != $form[$key]['region']['#default_value']) {
-            unset($form[$key]['region']['#options'][$option]);
-          }
-        }
+        $form[$key]['region']['#disabled'] = TRUE;
+        $form[$key]['weight']['#disabled'] = TRUE;
       }
       // Remove the <none> option from the select list if the user can't disable the block
       if (!block_access_can_disable($module, $delta)) {
@@ -327,7 +318,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
     $form['#submit'][] = 'block_access_admin_display_submit';
   }
   // Or the other form we're interested in
-  elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG || $form_id == BLOCK_ACCESS_FORM_ADD) {
+  elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG) {
 
     $role_options = user_roles();
     $module = $form['module']['#value'];
@@ -362,21 +353,22 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
  * @param $module       string - The module providing the block
  * @param $delta        string - The delta of this block
  */
-function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = null) {
+function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = NULL) {
+  require_once(drupal_get_path('module', 'block_access') . '/block_access.db.inc');
   $default_role_options = block_access_get_roles($module, $perm, $delta);
   $collapsed = empty($default_role_options) ? TRUE : FALSE;
-  $form['role_'.$perm.'_settings'] = array(
+  $form['role_' . $perm . '_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Role specific '.$perm.' settings'),
+    '#title' => t('Role specific ' . $perm . ' settings'),
     '#collapsible' => TRUE,
     '#collapsed' => $collapsed
   );
-  $form['role_'.$perm.'_settings'][$perm.'_roles'] = array(
+  $form['role_' . $perm . '_settings'][$perm . '_roles'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Set permission for specific roles'),
     '#default_value' => $default_role_options,
     '#options' => $role_options,
-    '#description' => t('Set this permission for the selected role(s). If no roles are set the option will be available to all.'),
+    '#description' => t('Set this permission for the selected role(s). If no roles are set the option will be available to all. '),
   );
 }
 
@@ -388,19 +380,19 @@ function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = n
  */
 function block_access_check_submit($form, $key, $block) {
   $valid = TRUE;
-  $name = array(check_plain($block['info']));
+  $name = check_plain($block['info']);
 
   // If the user is trying to disable the block but can't, report it
   if ($block['region'] == BLOCK_REGION_NONE && $form[$key]['region']['#value'] != BLOCK_REGION_NONE 
   && !block_access_can_delete($block['module']['#value'], $block['delta']['#value'])) {
-    drupal_set_message(t('You cannot disable @block.', $name));
+    drupal_set_message(t('You cannot disable @block.', array('@block' => $name)));
     $valid = FALSE;
   }
 
   // If the user is trying to enable the block but can't, report it
   elseif ($block['region'] != BLOCK_REGION_NONE && $form[$key]['region']['#value'] == BLOCK_REGION_NONE
   && !block_access_can_enable($block['module']['#value'], $block['delta']['#value'])) {
-    drupal_set_message(t('You cannot enable @block.', $name));
+    drupal_set_message(t('You cannot enable @block.', array('@block' => $name)));
     $valid = FALSE;
   }
 
@@ -408,7 +400,7 @@ function block_access_check_submit($form, $key, $block) {
   elseif ($block['region'] != BLOCK_REGION_NONE && $form[$key]['region']['#value'] != BLOCK_REGION_NONE
   && $block['region'] != $form[$key]['region']['#value']
   && !block_access_can_move($block['module']['#value'], $block['delta']['#value'])) {
-    drupal_set_message(t('You cannot move @block.', $name));
+    drupal_set_message(t('You cannot move @block.', array('@block' => $name)));
     $valid = FALSE;
   }
 
@@ -425,7 +417,7 @@ function block_access_config_presubmit($form, &$form_state) {
   // restore existing values if they were removed from the form
   $edit = db_fetch_array(db_query("
     SELECT pages, visibility, custom, title
-    FROM   {blocks}
+    FROM   {block}
     WHERE  module = '%s'
     AND delta = '%s'",
     $module, $delta));
@@ -442,7 +434,7 @@ function block_access_config_presubmit($form, &$form_state) {
     $form_state['values']['roles'] = array();
     $result = db_query("
       SELECT rid
-      FROM   {blocks_roles}
+      FROM   {block_role}
       WHERE  module = '%s'
       AND    delta = '%s'",
       $module, $delta);
@@ -489,10 +481,11 @@ function block_access_config_submit($form, &$form_state) {
  * @param $module  string  - The module providing the block
  * @param $delta   string  - The delta of the block
  */
-function block_access_config_set_roles($perm, $roleset, $module, $delta = null) {
+function block_access_config_set_roles($perm, $roleset, $module, $delta = NULL) {
   $roles = array_filter($roleset);
+  require_once(drupal_get_path('module', 'block_access') . '/block_access.db.inc');
   block_access_delete_roles($module, $perm, $delta);
-  foreach($roles as $rid) {
+  foreach ($roles as $rid) {
     block_access_add_role($rid, $module, $perm, $delta);
   }
 }
