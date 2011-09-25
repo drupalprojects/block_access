@@ -131,7 +131,7 @@ function block_access_user_access($module, $delta, $perm) {
   if (!isset($perms[$module][$delta])) $perms[$module][$delta] = array();
   if (!isset($perms[$module][$delta][$perm])) {
     $perms[$module][$delta][$perm] = FALSE;
-    require_once(drupal_get_path('module', 'block_access') . '/block_access.db.inc');
+    module_load_include('inc', 'block_access', 'block_access.db');
     $roles = block_access_get_roles($module, $perm, $delta);
     foreach ($roles as $rid) {
       if (in_array($rid, array_keys($user->roles))) {
@@ -354,7 +354,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
  * @param $delta        string - The delta of this block
  */
 function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = NULL) {
-  require_once(drupal_get_path('module', 'block_access') . '/block_access.db.inc');
+  module_load_include('inc', 'block_access', 'block_access.db');
   $default_role_options = block_access_get_roles($module, $perm, $delta);
   $collapsed = empty($default_role_options) ? TRUE : FALSE;
   $form['role_' . $perm . '_settings'] = array(
@@ -415,32 +415,22 @@ function block_access_config_presubmit($form, &$form_state) {
   $delta = $form_state['values']['delta'];
 
   // restore existing values if they were removed from the form
-  $edit = db_fetch_array(db_query("
-    SELECT pages, visibility, custom, title
-    FROM   {block}
-    WHERE  module = '%s'
-    AND delta = '%s'",
-    $module, $delta));
-  if (!isset($form_state['values']['pages']))
+  module_load_include('inc', 'block_access', 'block_access.db');
+  $edit = block_access_get_block($module, $delta);
+  if (!isset($form_state['values']['pages'])) {
     $form_state['values']['pages'] = $edit['pages'];
-  if (!isset($form_state['values']['visibility']))
+  }
+  if (!isset($form_state['values']['visibility'])) {
     $form_state['values']['visibility'] = $edit['visibility'];
-  if (!isset($form_state['values']['custom']))
+  }
+  if (!isset($form_state['values']['custom'])) {
     $form_state['values']['custom'] = $edit['custom'];
-  if (!isset($form_state['values']['title']))
+  }
+  if (!isset($form_state['values']['title'])) {
     $form_state['values']['title'] = $edit['title'];
-
+  }
   if (!isset($form_state['values']['roles'])) {
-    $form_state['values']['roles'] = array();
-    $result = db_query("
-      SELECT rid
-      FROM   {block_role}
-      WHERE  module = '%s'
-      AND    delta = '%s'",
-      $module, $delta);
-    while ($role = db_fetch_object($result)) {
-      $form_state['values']['roles'][] = $role->rid;
-    }
+    $form_state['values']['roles'] = block_access_get_block_roles($module, $delta);
   }
 
   // i18n deletes its config if the fields aren't in the form, so replace them here
