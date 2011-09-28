@@ -12,19 +12,19 @@
  * The first bunch relate to all blocks so are plain strings
  * The second bunch use @block placeholder to hold the title of the block
  */
-define('BLOCK_ACCESS_ADMIN',            'Administer block access settings');
-define('BLOCK_ACCESS_CREATE',           'Create blocks');
-define('BLOCK_ACCESS_ALL_VIEW',         'View all blocks');
-define('BLOCK_ACCESS_ALL_MOVE',         'Move all blocks');
-define('BLOCK_ACCESS_ALL_ENABLE',       'Enable all blocks');
-define('BLOCK_ACCESS_ALL_DISABLE',      'Disable all blocks');
-define('BLOCK_ACCESS_ALL_DELETE',       'Delete all blocks');
-define('BLOCK_ACCESS_ALL_CONFIG',       'Configure all blocks. ');
-define('BLOCK_ACCESS_ALL_CONFIG_LANG',  'Configure all language settings');
-define('BLOCK_ACCESS_ALL_CONFIG_SPEC',  'Configure all specific settings');
-define('BLOCK_ACCESS_ALL_CONFIG_USER',  'Configure all user settings');
-define('BLOCK_ACCESS_ALL_CONFIG_ROLE',  'Configure all role settings');
-define('BLOCK_ACCESS_ALL_CONFIG_PAGE',  'Configure all page settings');
+define('BLOCK_ACCESS_ADMIN',            'administer block access settings');
+define('BLOCK_ACCESS_CREATE',           'create blocks');
+define('BLOCK_ACCESS_ALL_VIEW',         'view all blocks');
+define('BLOCK_ACCESS_ALL_MOVE',         'move all blocks');
+define('BLOCK_ACCESS_ALL_ENABLE',       'enable all blocks');
+define('BLOCK_ACCESS_ALL_DISABLE',      'disable all blocks');
+define('BLOCK_ACCESS_ALL_DELETE',       'delete all blocks');
+define('BLOCK_ACCESS_ALL_CONFIG',       'configure all blocks. ');
+define('BLOCK_ACCESS_ALL_CONFIG_LANG',  'configure all language settings');
+define('BLOCK_ACCESS_ALL_CONFIG_SPEC',  'configure all specific settings');
+define('BLOCK_ACCESS_ALL_CONFIG_USER',  'configure all user settings');
+define('BLOCK_ACCESS_ALL_CONFIG_ROLE',  'configure all role settings');
+define('BLOCK_ACCESS_ALL_CONFIG_PAGE',  'configure all page settings');
 
 /*
  * Menu/Form items we need to mess with
@@ -98,19 +98,22 @@ function block_access_permission() {
 
   // All the "All blocks" level permissions
   $access = array(
-    t(BLOCK_ACCESS_ADMIN),
-    t(BLOCK_ACCESS_CREATE),
-    t(BLOCK_ACCESS_ALL_VIEW),
-    t(BLOCK_ACCESS_ALL_MOVE),
-    t(BLOCK_ACCESS_ALL_ENABLE),
-    t(BLOCK_ACCESS_ALL_DISABLE),
-    t(BLOCK_ACCESS_ALL_CONFIG),
-    t(BLOCK_ACCESS_ALL_DELETE),
-    t(BLOCK_ACCESS_ALL_CONFIG_LANG),
-    t(BLOCK_ACCESS_ALL_CONFIG_SPEC),
-    t(BLOCK_ACCESS_ALL_CONFIG_USER),
-    t(BLOCK_ACCESS_ALL_CONFIG_ROLE),
-    t(BLOCK_ACCESS_ALL_CONFIG_PAGE),
+    BLOCK_ACCESS_ADMIN => array(
+      'title' => t(ucfirst(BLOCK_ACCESS_ADMIN)),
+      'restrict access' => TRUE,
+    ),
+    BLOCK_ACCESS_CREATE => array('title' => t(ucfirst(BLOCK_ACCESS_CREATE))),
+    BLOCK_ACCESS_ALL_VIEW => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_VIEW))),
+    BLOCK_ACCESS_ALL_MOVE => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_MOVE))),
+    BLOCK_ACCESS_ALL_ENABLE => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_ENABLE))),
+    BLOCK_ACCESS_ALL_DISABLE => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_DISABLE))),
+    BLOCK_ACCESS_ALL_CONFIG => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_CONFIG))),
+    BLOCK_ACCESS_ALL_DELETE => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_DELETE))),
+    BLOCK_ACCESS_ALL_CONFIG_LANG => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_CONFIG_LANG))),
+    BLOCK_ACCESS_ALL_CONFIG_SPEC => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_CONFIG_SPEC))),
+    BLOCK_ACCESS_ALL_CONFIG_USER => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_CONFIG_USER))),
+    BLOCK_ACCESS_ALL_CONFIG_ROLE => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_CONFIG_ROLE))),
+    BLOCK_ACCESS_ALL_CONFIG_PAGE => array('title' => t(ucfirst(BLOCK_ACCESS_ALL_CONFIG_PAGE))),
   );
 
   return $access;
