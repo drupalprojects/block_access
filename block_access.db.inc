@@ -21,7 +21,7 @@ function block_access_delete_roles($module, $perm, $delta=NULL) {
   else {
     $delete->isNull('delta');
   }
-  $delete->execute();
+  return $delete->execute();
 }
 
 /**
@@ -32,8 +32,13 @@ function block_access_delete_roles($module, $perm, $delta=NULL) {
  * @param $delta - optional block delta
  */
 function block_access_add_role($rid, $module, $perm, $delta=NULL) {
-  $record = array($rid, $module, $delta, $perm);
-  drupal_write_record('block_access_roles', $record);
+  $record = array(
+    'rid' => $rid,
+    'module' => $module,
+    'delta' => $delta,
+    'permission' => $perm);
+  $result = drupal_write_record('block_access_roles', $record);
+  return $result;
 }
 
 /**
@@ -60,7 +65,7 @@ function block_access_get_roles($module, $perm, $delta=NULL) {
 
   $ret = array();
   foreach ($result as $record) {
-    $ret[] = $record['rid'];
+    $ret[] = $record->rid;
   }
 
   return $ret;

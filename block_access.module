@@ -477,9 +477,9 @@ function block_access_config_submit($form, &$form_state) {
 function block_access_config_set_roles($perm, $roleset, $module, $delta = NULL) {
   $roles = array_filter($roleset);
   require_once(drupal_get_path('module', 'block_access') . '/block_access.db.inc');
-  block_access_delete_roles($module, $perm, $delta);
+  $result = block_access_delete_roles($module, $perm, $delta);
   foreach ($roles as $rid) {
-    block_access_add_role($rid, $module, $perm, $delta);
+    $result = block_access_add_role($rid, $module, $perm, $delta);
   }
 }
 
