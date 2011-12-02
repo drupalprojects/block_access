@@ -56,7 +56,7 @@ function block_access_get_roles($module, $perm, $delta=null) {
   }
 
   // If we didn't find any for the delta, use the module defaults
-  if ($delta && empty($ret)) {
+  if (empty($ret)) {
     $result = db_query($sql, $module, $perm, '');
     while ($rid = db_result($result)) {
       $ret[] = $rid;
