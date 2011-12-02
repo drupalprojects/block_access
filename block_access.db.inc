@@ -58,7 +58,7 @@ function block_access_get_roles($module, $perm, $delta=NULL) {
   $result = $query->execute();
 
   // If we didn't find any for the delta, use the module defaults
-  if ($delta && empty($result)) {
+  if (empty($result)) {
     $query->isNull('delta');
     $result = $query->execute();
   }
