@@ -8,3 +8,10 @@ files[] = block_access.module
 files[] = block_access.admin.inc
 files[] = block_access.db.inc
 files[] = block_access.theme.inc
+
+; Information added by drupal.org packaging script on 2011-12-03
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "block_access"
+datestamp = "1322871009"
+
