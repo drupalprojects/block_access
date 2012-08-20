@@ -52,8 +52,7 @@ function block_access_get_roles($module, $perm, $delta=NULL) {
   $query = db_select('block_access_roles', 'b')
     ->fields('b', array('rid'))
     ->condition('module', $module, '=')
-    ->condition('permission', $perm, '=')
-    ->condition('delta', $delta, '=');
+    ->condition('permission', $perm, '=');
 
   $result = $query->execute();
 

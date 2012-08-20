@@ -13,7 +13,7 @@ function theme_block_access_admin_list($variables) {
 
   $header = array(
     t('Module'),
-    t('Current Settings'),
+    //t('Current Settings'),
     t('Operations'),
   );
 
@@ -23,6 +23,7 @@ function theme_block_access_admin_list($variables) {
     if (is_numeric($key)) {
       $row = array();
       $row[] = $module;
+      /*
       $roles = block_access_get_module($module);
       if (empty($roles)) {
         $row[] = 'None';
@@ -39,8 +40,8 @@ function theme_block_access_admin_list($variables) {
           $output .= '</ul></li>';
         }
         $output .= '</ul>';
-        $row[] = $output;
-      }
+        //$row[] = $output;
+      }*/
       $row[] = l(t('edit'), BLOCK_ACCESS_SETTINGS . '/edit/' . $module);
       $rows[] = array('data' => $row);
     }
@@ -55,6 +56,6 @@ function theme_block_access_admin_list($variables) {
     'header' => $header,
     'rows' => $rows,
     'attributes' => array('id' => 'block_access-list-table')));
-  return 'This is a list of modules which expose blocks. Here you can define default permissions on a per module basis to be used when new blocks get created.' . $output;
+  return 'This is a list of modules which expose blocks. Here you can define default permissions on a per module basis.' . $output;
 }
 
