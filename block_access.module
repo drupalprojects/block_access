@@ -20,7 +20,7 @@ define('BLOCK_ACCESS_ALL_MOVE',               'move all blocks');
 define('BLOCK_ACCESS_ALL_ENABLE',             'enable all blocks');
 define('BLOCK_ACCESS_ALL_DISABLE',            'disable all blocks');
 define('BLOCK_ACCESS_ALL_DELETE',             'delete all blocks');
-define('BLOCK_ACCESS_ALL_CONFIG',             'configure all blocks. ');
+define('BLOCK_ACCESS_ALL_CONFIG',             'configure all blocks');
 define('BLOCK_ACCESS_ALL_CONFIG_LANG',        'configure all language settings');
 define('BLOCK_ACCESS_ALL_CONFIG_TITLE',       'configure all block titles');
 define('BLOCK_ACCESS_ALL_CONFIG_DESC',        'configure all block descriptions');
@@ -58,7 +58,7 @@ function block_access_theme() {
 }
 
 /**
- * Implements hook_features_api() 
+ * Implements hook_features_api()
  */
 function block_access_features_api() {
   return array(
@@ -242,31 +242,31 @@ function block_access_can_move($module, $delta) {
  * Attempts to set the allowable regions - if none, all are assumed
  * @param type $module
  * @param type $delta
- * @param type $form 
+ * @param type $form
  */
 function block_access_set_allowable_regions($module, $delta, $key, &$form) {
   // Loop over each region listed in the options panel
   $default_value = NULL;
   $return = TRUE;
-  
+
   if (user_access(t(BLOCK_ACCESS_ALL_CONFIG_REGION))) {
     return TRUE;
   }
-  
+
   foreach ($form['blocks'][$key]['region']['#options'] as $name => $des) {
     if (block_access_user_access($module, $delta, "dreg_$name")) {
       if ($form['blocks'][$key]['region']['#default_value'] == $name) {
         $form['blocks'][$key]['region']['#access'] = FALSE; // Do not allow them to change if in a region they do not have access to
         //$form['blocks'][$key]['region']['#default_value'] = NULL;
       }
-      
+
       unset($form['blocks'][$key]['region']['#options'][$name]);
     }
     else {
       $default_value = $name;
     }
   }
-  
+
   /*
   if ($form['blocks'][$key]['region']['#default_value'] === NULL) {
     if ($default_value !== NULL) {
@@ -286,7 +286,7 @@ function block_access_set_allowable_regions($module, $delta, $key, &$form) {
  * Attempts to set the allowable regions for each theme (config) - if none, all are assumed
  * @param type $module
  * @param type $delta
- * @param type $form 
+ * @param type $form
  */
 function block_access_set_allowable_regions_config($module, $delta, &$form) {
   global $theme;
@@ -294,10 +294,10 @@ function block_access_set_allowable_regions_config($module, $delta, &$form) {
   if (user_access(t(BLOCK_ACCESS_ALL_CONFIG_REGION))) {
     return TRUE;
   }
-  
+
   // Loop over each region listed in the options panel
   $default_value = NULL;
-  
+
   foreach ($form['regions'] as $heading => $hval) {
 //    if ((is_array($heading)) && (isset($heading['#options']))) {
     if ((is_array($hval)) && (isset($hval['#options']))) {
@@ -309,14 +309,14 @@ function block_access_set_allowable_regions_config($module, $delta, &$form) {
             //$form['regions'][$heading]['#default_value'] = NULL;
             $form['regions'][$heading]['#access'] = FALSE;
           }
-          
+
           unset($form['regions'][$heading]['#options'][$name]);
         }
         else {
           $default_value = $name;
         }
       }
-      
+
       /*
       if ($form['regions'][$heading]['#default_value'] === NULL) {
         if ($default_value !== NULL) {
@@ -330,7 +330,7 @@ function block_access_set_allowable_regions_config($module, $delta, &$form) {
     }
   }
 }
- 
+
 /*
  * If any of the config perms are on, give access
  */
@@ -446,10 +446,10 @@ function block_access_check_perms(&$form, $key, $block) {
           $form['blocks'][$key]['weight']['#access'] = FALSE;
         }
       }
-      
+
       // Only allow regions the user can move into
-      if (block_access_set_allowable_regions($module, $delta, $key, $form) === TRUE) {            
-        
+      if (block_access_set_allowable_regions($module, $delta, $key, $form) === TRUE) {
+
         if ($form['blocks'][$key]['region']['#default_value']) {
           // Remove the <none> option from the select list if the user can't disable the block
           if (!block_access_can_disable($module, $delta)) {
@@ -594,7 +594,7 @@ function block_access_fieldset(&$form, $role_options, $perm, $module, $delta = N
   else {
     $realname = t('@realname', array('@realname' => $realname));
   }
-  
+
   module_load_include('inc', 'block_access', 'block_access.db');
   $default_role_options = block_access_get_roles($module, $perm, $delta);
   $collapsed = empty($default_role_options) ? TRUE : FALSE;
