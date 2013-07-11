@@ -9,6 +9,18 @@ files[] = block_access.admin.inc
 files[] = block_access.db.inc
 files[] = block_access.theme.inc
 
+; tests
+files[] = tests/common.test
+files[] = tests/ui.test
+files[] = tests/op_basic_view.test
+files[] = tests/op_basic_move.test
+files[] = tests/op_basic_enable.test
+files[] = tests/op_basic_disable.test
+files[] = tests/op_basic_config.test
+files[] = tests/op_basic_delete.test
+files[] = tests/op_config.test
+files[] = tests/op_region.test
+
 ; Information added by drupal.org packaging script on 2011-12-03
 version = "7.x-1.x-dev"
 core = "7.x"
