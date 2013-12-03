@@ -1,5 +1,4 @@
 <?php
-// $Id: block_access.module,v 1.1.2.2 2010/05/12 17:26:02 lambic Exp $
 /*
  * @file block_access.module
  * This module handles access permissions for the block admin page.
@@ -57,21 +56,6 @@ function block_access_theme() {
   );
 }
 
-/**
- * Implements hook_features_api()
- */
-function block_access_features_api() {
-  return array(
-      'block_access_config' => array(
-      'name' => 'Block Access Configs',
-      'file' => drupal_get_path('module', 'block_access') .'/block_access.features.inc',
-      'default_hook' => 'block_access_config_features_default_settings',
-      'feature_source' => TRUE,
-    ),
-  );
-}
-
-
 /*
  * Implementation of hook_menu()
  */
@@ -114,7 +98,6 @@ function block_access_menu_alter(&$items) {
   $items[BLOCK_ACCESS_MENU_CONFIG]['access arguments'] = array(4, 5);
   $items[BLOCK_ACCESS_MENU_MANAGE]['access callback'] = 'block_access_check_config';
   $items[BLOCK_ACCESS_MENU_MANAGE]['access arguments'] = array(4, 5);
-
 }
 
 /*
@@ -256,10 +239,9 @@ function block_access_set_allowable_regions($module, $delta, $key, &$form) {
   foreach ($form['blocks'][$key]['region']['#options'] as $name => $des) {
     if (block_access_user_access($module, $delta, "dreg_$name")) {
       if ($form['blocks'][$key]['region']['#default_value'] == $name) {
-        $form['blocks'][$key]['region']['#access'] = FALSE; // Do not allow them to change if in a region they do not have access to
-        //$form['blocks'][$key]['region']['#default_value'] = NULL;
+        // Do not allow them to change if in a region they do not have access to
+        $form['blocks'][$key]['region']['#access'] = FALSE;
       }
-
       unset($form['blocks'][$key]['region']['#options'][$name]);
     }
     else {
@@ -267,18 +249,6 @@ function block_access_set_allowable_regions($module, $delta, $key, &$form) {
     }
   }
 
-  /*
-  if ($form['blocks'][$key]['region']['#default_value'] === NULL) {
-    if ($default_value !== NULL) {
-      $form['blocks'][$key]['region']['#default_value'] = $default_value;
-    }
-    else {
-      $form['blocks'][$key]['region']['#default_value'] = "";
-      $form['blocks'][$key]['region']['#access'] = FALSE;
-      $return = FALSE; // set access to none - disable regions as none are available
-    }
-  }
-  */
   return $return;
 }
 
@@ -316,17 +286,6 @@ function block_access_set_allowable_regions_config($module, $delta, &$form) {
           $default_value = $name;
         }
       }
-
-      /*
-      if ($form['regions'][$heading]['#default_value'] === NULL) {
-        if ($default_value !== NULL) {
-          $form['regions'][$heading]['#default_value'] = $default_value;
-        }
-        else {
-          $form['regions'][$heading]['#default_value'] = "";
-          $form['regions']['#access'] = FALSE;
-        }
-      }*/
     }
   }
 }
@@ -727,4 +686,127 @@ function block_access_check_delete($bid) {
 
 function block_access_check_config($module, $delta) {
   return block_access_can_config($module, $delta);
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function block_access_features_api() {
+  return array(
+    'block_access' => array(
+      'name' => t('Block Access'),
+      'feature_source' => TRUE,
+      'default_hook' => 'block_access_defaults',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+    ),
+  );
+}
+
+/**
+ * Implements hook_features_export_options().
+ *
+ * Defines what shows up in the feature creation interface
+ */
+function block_access_features_export_options() {
+  $options = array();
+  $q = db_query('SELECT DISTINCT module FROM {block_access_roles}');
+  while ($module = $q->fetchObject()) {
+    $options[$module->module] = t('@module', array('@module' => $module->module));
+  }
+  return $options;
+}
+
+/**
+ * Implements hook_features_export().
+ */
+function block_access_features_export($data, &$export, $module_name = '') {
+  $export['dependencies']['block_access'] = 'block_access';
+  foreach ($data as $module) {
+    module_load_include('inc', 'block_access', 'block_access.db');
+    $perms = block_access_get_module($module);
+    $roles = user_roles();
+    foreach (array_keys($perms) as $rid) {
+      $export['features']['user_role'][$roles[$rid]] = $roles[$rid];
+      // Convert the role from a rid to a 'machine name' for saving. This
+      // will be converted back to a rid when the feature is reverted.
+      $perms[$roles[$rid]] = $perms[$rid];
+      unset($perms[$rid]);
+    }
+    $export['features']['block_access'][$module] = $perms;
+  }
+  return array();
+}
+
+/**
+ * Implements hook_features_export_render().
+ */
+function block_access_features_export_render($module_name = '', $data, $export = NULL) {
+  $code = array();
+  $code[] = '  $block_access = array();';
+  $code[] = '';
+
+  foreach ($data as $module) {
+    module_load_include('inc', 'block_access', 'block_access.db');
+    $perms = block_access_get_module($module);
+    if (is_array($perms) && !empty($perms)) {
+      // Sort roles and types arrays into ascending order so that we can
+      // check for overridden db data without being affected by the order
+      // in which this array gets stored/loaded.
+      $roles = user_roles();
+      foreach (array_keys($perms) as $rid) {
+        $perms[$roles[$rid]] = $perms[$rid];
+        unset($perms[$rid]);
+      }
+      asort($perms);
+      $block_access_export = features_var_export($perms, '  ');
+
+      $code[] = "  // Exported Block Access settings for module {$module}";
+      $code[] = "  \$block_access['{$module}'] = {$block_access_export};";
+      $code[] = "";
+    }
+  }
+
+  $code[] = '  return $block_access;';
+  $code = implode("\n", $code);
+
+  return array('block_access_defaults' => $code);
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function block_access_features_revert($module) {
+  if ($defaults = features_get_default('block_access', $module)) {
+    // Revert.
+    foreach ($defaults as $source_module => $perms) {
+      module_load_include('inc', 'block_access', 'block_access.db');
+      $dbperms = block_access_get_module($source_module);
+      $roles = array_flip(user_roles());
+      foreach (array_keys($perms) as $role) {
+        $perms[$roles[$role]] = $perms[$role];
+        unset($perms[$role]);
+      }
+      if ($dbperms != $perms) {
+        foreach ($perms as $rid => $role_perms) {
+          foreach ($role_perms as $perm) {
+            block_access_add_role($rid, $source_module, $perm);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function block_access_features_rebuild($module) {
+  block_access_features_revert($module);
+}
+
+/**
+ * Implements hook_features_enable_feature().
+ */
+function block_access_features_enable_feature($module) {
+  block_access_features_revert($module);
 }
