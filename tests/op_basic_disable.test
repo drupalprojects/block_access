@@ -37,8 +37,10 @@ class BlockAccessDisableTestCase extends BlockAccessTestCase {
     $this->user2 = $this->drupalCreateUser($perms);
 
     // Restrict operation to $user1 role
-    $role1 = array_shift(array_keys($this->user1->roles));
-    $role2 = array_shift(array_keys($this->user2->roles));
+    $user1_roles = array_keys($this->user1->roles);
+    $user2_roles = array_keys($this->user2->roles);
+    $role1 = array_shift($user1_roles);
+    $role2 = array_shift($user2_roles);
     $this->setBlockAccessPerm($this->block, $role1, 'disable', TRUE);
     $this->setBlockAccessPerm($this->block, $role2, 'disable', FALSE);
   }

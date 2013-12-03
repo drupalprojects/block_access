@@ -1,4 +1,3 @@
-; $Id: block_access.info,v 1.1 2010/05/07 18:14:19 lambic Exp $
 name = Block Access
 description = Provides flexible block administration access control.
 package = Access control
@@ -20,13 +19,6 @@ files[] = tests/op_basic_config.test
 files[] = tests/op_basic_delete.test
 files[] = tests/op_config.test
 files[] = tests/op_region.test
-
-; Information added by drupal.org packaging script on 2011-12-03
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "block_access"
-datestamp = "1322871009"
-
 
 ; Information added by drupal.org packaging script on 2012-03-27
 version = "7.x-1.x-dev"

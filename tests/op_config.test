@@ -40,11 +40,13 @@ class BlockAccessConfigSpecificTestCase extends BlockAccessTestCase {
       'view all blocks', 'configure all blocks', 'configure all visibility settings');
     $this->user1 = $this->drupalCreateUser($perms);
     $this->user2 = $this->drupalCreateUser($perms);
-    $this->role1 = array_shift(array_keys($this->user1->roles));
-    $this->role2 = array_shift(array_keys($this->user2->roles));
+    $user1_roles = array_keys($this->user1->roles);
+    $user2_roles = array_keys($this->user2->roles);
+    $this->role1 = array_shift($user1_roles);
+    $this->role2 = array_shift($user2_roles);
   }
 
-  
+
   /**
    * Test all config-specific operations
    */

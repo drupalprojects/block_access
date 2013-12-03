@@ -40,11 +40,13 @@ class BlockAccessRegionSpecificTestCase extends BlockAccessTestCase {
       'administer blocks', 'access the block administration page', 'view all blocks', 'move all blocks');
     $this->user1 = $this->drupalCreateUser($perms);
     $this->user2 = $this->drupalCreateUser($perms);
-    $this->role1 = array_shift(array_keys($this->user1->roles));
-    $this->role2 = array_shift(array_keys($this->user2->roles));
+    $user1_roles = array_keys($this->user1->roles);
+    $user2_roles = array_keys($this->user2->roles);
+    $this->role1 = array_shift($user1_roles);
+    $this->role2 = array_shift($user2_roles);
   }
 
-  
+
   /**
    * Test we can block $user1 access to a region
    */

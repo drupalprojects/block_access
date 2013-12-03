@@ -1,6 +1,4 @@
 <?php
-// $Id: block_access.install,v 1.1.2.1 2010/05/12 17:26:02 lambic Exp $
-
 /**
  * @file
  * block_access module installation and upgrade code.
