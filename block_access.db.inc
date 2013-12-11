@@ -15,11 +15,11 @@ function block_access_delete_roles($module, $perm, $delta=NULL) {
   $delete = db_delete('block_access_roles')
     ->condition('module', $module, '=')
     ->condition('permission', $perm, '=');
-  if ($delta !== NULL) {
+  if ($delta) {
     $delete->condition('delta', $delta, '=');
   }
   else {
-    $delete->isNull('delta');
+    $delete->condition('delta', '', '=');
   }
   return $delete->execute();
 }
