@@ -46,10 +46,10 @@ function block_access_module_form($form, &$form_state, $module) {
   block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_desc', $module, null, 'can change block description');
   block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_body', $module, null, 'can change block body');
   block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_region', $module, null, 'can change block region');
-  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_page_visibility', $module, null, 'can change block page visibility');
-  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_type_visibility', $module, null, 'can change block type visibility');
-  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_role_visibility', $module, null, 'can change block role visibility');
-  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_user_visibility', $module, null, 'can change block user visibility');
+  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_page', $module, null, 'can change block page visibility');
+  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_type', $module, null, 'can change block type visibility');
+  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_role', $module, null, 'can change block role visibility');
+  block_access_fieldset($form['role_config_ops_fieldset'], $role_options, 'config_user', $module, null, 'can change block user visibility');
 
   // Grab the list of available regions
 /*  $theme_list = list_themes();
@@ -98,10 +98,10 @@ function block_access_module_form_submit($form, &$form_state) {
   block_access_config_set_roles('config_desc',   $values['config_desc_roles'], $module);
   block_access_config_set_roles('config_body',   $values['config_body_roles'], $module);
   block_access_config_set_roles('config_region', $values['config_region_roles'], $module);
-  block_access_config_set_roles('config_type',   $values['config_type_visibility_roles'], $module);
-  block_access_config_set_roles('config_user',   $values['config_user_visibility_roles'], $module);
-  block_access_config_set_roles('config_role',   $values['config_role_visibility_roles'], $module);
-  block_access_config_set_roles('config_page',   $values['config_page_visibility_roles'], $module);
+  block_access_config_set_roles('config_type',   $values['config_type_roles'], $module);
+  block_access_config_set_roles('config_user',   $values['config_user_roles'], $module);
+  block_access_config_set_roles('config_role',   $values['config_role_roles'], $module);
+  block_access_config_set_roles('config_page',   $values['config_page_roles'], $module);
 
   $region_list = system_region_list($current_theme);
 
