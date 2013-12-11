@@ -745,21 +745,13 @@ function block_access_features_export_render($module_name = '', $data, $export =
   $code[] = '  $block_access = array();';
   $code[] = '';
 
-  foreach ($data as $module) {
+  foreach ($data as $module => $perms) {
     module_load_include('inc', 'block_access', 'block_access.db');
-    $perms = block_access_get_module($module);
     if (is_array($perms) && !empty($perms)) {
       // Sort roles and types arrays into ascending order so that we can
       // check for overridden db data without being affected by the order
       // in which this array gets stored/loaded.
-      $roles = user_roles();
-      foreach (array_keys($perms) as $rid) {
-        $perms[$roles[$rid]] = $perms[$rid];
-        unset($perms[$rid]);
-      }
-      asort($perms);
       $block_access_export = features_var_export($perms, '  ');
-
       $code[] = "  // Exported Block Access settings for module {$module}";
       $code[] = "  \$block_access['{$module}'] = {$block_access_export};";
       $code[] = "";

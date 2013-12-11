@@ -49,9 +49,3 @@ function block_access_schema() {
   return $schema;
 }
 
-/**
- * Make delta nullable
- */
-function hook_update_7001() {
-  db_query('alter table {block_access_roles} modify delta varchar(32) null');
-}

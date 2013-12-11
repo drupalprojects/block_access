@@ -91,6 +91,7 @@ function block_access_get_roles($module, $perm, $delta=NULL) {
  * @returns an array of Role IDs and their permissions
  */
 function block_access_get_module($module) {
+  dsm($module);
   $query = db_select('block_access_roles', 'b')
     ->fields('b', array('rid', 'permission'))
     ->condition('module', $module, '=')
