@@ -614,7 +614,6 @@ function block_access_config_submit($form, &$form_state) {
   $values = $form_state['values'];
   $module = $values['module'];
   $delta = $values['delta'];
-  dsm($values);
 
   // If there's one, they're all there.
   if (isset($form_state['values']['view_roles'])) {
