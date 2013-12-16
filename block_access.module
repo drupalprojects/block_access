@@ -614,6 +614,7 @@ function block_access_config_submit($form, &$form_state) {
   $values = $form_state['values'];
   $module = $values['module'];
   $delta = $values['delta'];
+  dsm($values);
 
   // If there's one, they're all there.
   if (isset($form_state['values']['view_roles'])) {
@@ -628,10 +629,10 @@ function block_access_config_submit($form, &$form_state) {
     block_access_config_set_roles('config_desc',   $values['config_desc_roles'], $module, $delta);
     block_access_config_set_roles('config_body',   $values['config_body_roles'], $module, $delta);
     block_access_config_set_roles('config_region', $values['config_region_roles'], $module, $delta);
-    block_access_config_set_roles('config_type',   $values['config_type_visibility_roles'], $module, $delta);
-    block_access_config_set_roles('config_user',   $values['config_user_visibility_roles'], $module, $delta);
-    block_access_config_set_roles('config_role',   $values['config_role_visibility_roles'], $module, $delta);
-    block_access_config_set_roles('config_page',   $values['config_page_visibility_roles'], $module, $delta);
+    block_access_config_set_roles('config_type_visibility',   $values['config_type_visibility_roles'], $module, $delta);
+    block_access_config_set_roles('config_user_visibility',   $values['config_user_visibility_roles'], $module, $delta);
+    block_access_config_set_roles('config_role_visibility',   $values['config_role_visibility_roles'], $module, $delta);
+    block_access_config_set_roles('config_page_visibility',   $values['config_page_visibility_roles'], $module, $delta);
   }
 }
 

@@ -49,6 +49,7 @@ function block_access_add_role($rid, $module, $perm, $delta=NULL) {
  * @returns array of role IDs
  */
 function block_access_get_roles($module, $perm, $delta=NULL) {
+  $ret = array();
   $query = db_select('block_access_roles', 'b')
     ->fields('b', array('rid'))
     ->condition('module', $module, '=')
@@ -59,26 +60,20 @@ function block_access_get_roles($module, $perm, $delta=NULL) {
   }
 
   $result = $query->execute();
+  foreach ($result as $record) {
+    $ret[] = $record->rid;
+  }
 
   // If we didn't find any for the delta, use the module defaults
-  if ($delta && empty($result)) {
+  if ($delta && empty($ret)) {
     $delta = NULL;
     $query = db_select('block_access_roles', 'b')
       ->fields('b', array('rid'))
       ->condition('module', $module, '=')
       ->condition('permission', $perm, '=');
     $result = $query->execute();
-  }
-
-  $ret = array();
-  foreach ($result as $record) {
-    $ret[] = $record->rid;
-  }
-
-  if (!$delta) {
-    $result = module_invoke_all('block_access');
-    if (isset($result[$module][$perm])) {
-      $ret = array_merge($ret, $result[$module][$perm]);
+    foreach ($result as $record) {
+      $ret[] = $record->rid;
     }
   }
 
