@@ -43,6 +43,7 @@ define('BLOCK_ACCESS_MENU_MANAGE',      'admin/structure/block/manage/%/%');
 define('BLOCK_ACCESS_MENU_CONFIG',      'admin/structure/block/manage/%/%/configure');
 define('BLOCK_ACCESS_FORM_ADMIN',       'block_admin_display_form');
 define('BLOCK_ACCESS_FORM_CONFIG',      'block_admin_configure');
+define('BLOCK_ACCESS_FORM_ADD',         'block_add_block_form');
 
 /*
  * Implementation of hook_theme()
@@ -341,11 +342,6 @@ function block_access_can_config_region($module, $delta) {
       || block_access_user_access($module, $delta, 'config_region');
 }
 
-function block_access_can_config_visibility($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_VISIBILITY))
-      || block_access_user_access($module, $delta, 'config_visibility');
-}
-
 function block_access_can_config_type($module, $delta) {
   return user_access(t(BLOCK_ACCESS_ALL_CONFIG_TYPE))
       || block_access_user_access($module, $delta, 'config_type_visibility');
@@ -448,44 +444,22 @@ function block_access_check_config_form(&$form) {
     block_access_set_allowable_regions_config($module, $delta, $form);
   }
 
-  // If the user can't config any visibility settings
-  if (!block_access_can_config_visibility($module, $delta)) {
-    $form['visibility']['#access'] = FALSE;
-    $form['visibility_title']['#access'] = FALSE;
+  if (!block_access_can_config_page($module, $delta)) {
+    $form['visibility']['path']['#access'] = FALSE;
   }
-  else {
-    if (!block_access_can_config_page($module, $delta)) {
-      $form['visibility']['path']['#access'] = FALSE;
-    }
-    if (!block_access_can_config_role($module, $delta)) {
-      $form['visibility']['role']['#access'] = FALSE;
-      unset($form['role_view_settings']);
-      unset($form['role_move_settings']);
-      unset($form['role_enable_settings']);
-      unset($form['role_disable_settings']);
-      unset($form['role_delete_settings']);
-      unset($form['role_config_settings']);
-      unset($form['role_config_lang_settings']);
-      unset($form['role_config_title_settings']);
-      unset($form['role_config_desc_settings']);
-      unset($form['role_config_body_settings']);
-      unset($form['role_config_region_settings']);
-      unset($form['role_config_page_visibility_settings']);
-      unset($form['role_config_type_visibility_settings']);
-      unset($form['role_config_role_visibility_settings']);
-      unset($form['role_config_user_visibility_settings']);
-    }
-    if (!block_access_can_config_user($module, $delta)) {
-      $form['visibility']['user']['#access'] = FALSE;
-    }
-    if (module_exists('node') && !block_access_can_config_type($module, $delta)) {
-      $form['visibility']['node_type']['#access'] = FALSE;
-    }
-    // Hide the Visibility settings title if there are none available
-    if (!block_access_can_config_page($module, $delta) && !block_access_can_config_role($module, $delta) &&
-        !block_access_can_config_user($module, $delta) && (module_exists('node') && !block_access_can_config_type($module, $delta))) {
-      $form['visibility_title']['#access'] = FALSE;
-    }
+  if (!block_access_can_config_role($module, $delta)) {
+    $form['visibility']['role']['#access'] = FALSE;
+  }
+  if (!block_access_can_config_user($module, $delta)) {
+    $form['visibility']['user']['#access'] = FALSE;
+  }
+  if (module_exists('node') && !block_access_can_config_type($module, $delta)) {
+    $form['visibility']['node_type']['#access'] = FALSE;
+  }
+  // Hide the Visibility settings title if there are none available
+  if (!block_access_can_config_page($module, $delta) && !block_access_can_config_role($module, $delta) &&
+      !block_access_can_config_user($module, $delta) && (module_exists('node') && !block_access_can_config_type($module, $delta))) {
+    $form['visibility_title']['#access'] = FALSE;
   }
 }
 
@@ -506,7 +480,7 @@ function block_access_form_alter(&$form, &$form_state, $form_id) {
     $form['#submit'][] = 'block_access_admin_display_submit';
   }
   // Or the other form we're interested in
-  elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG) {
+  elseif ($form_id == BLOCK_ACCESS_FORM_CONFIG || $form_id == BLOCK_ACCESS_FORM_ADD) {
 
     $role_options = user_roles();
     $module = $form['module']['#value'];
