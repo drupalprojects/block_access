@@ -758,6 +758,13 @@ function block_access_features_revert($module) {
         unset($perms[$role]);
       }
       if ($dbperms != $perms) {
+        // Delete existing config.
+        foreach ($perms as $rid => $role_perms) {
+          foreach ($role_perms as $perm) {
+            block_access_delete_roles($source_module, $perm);
+          }
+        }
+        // Add default config.
         foreach ($perms as $rid => $role_perms) {
           foreach ($role_perms as $perm) {
             block_access_add_role($rid, $source_module, $perm);
