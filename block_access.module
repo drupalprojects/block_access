@@ -198,27 +198,27 @@ function block_access_module_implements_alter(&$implementations, $hook) {
  * Helpers for each permission
  */
 function block_access_can_view($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_VIEW))
+  return user_access(BLOCK_ACCESS_ALL_VIEW)
       || block_access_user_access($module, $delta, 'view');
 }
 
 function block_access_can_delete($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_DELETE))
+  return user_access(BLOCK_ACCESS_ALL_DELETE)
       || block_access_user_access($module, $delta, 'delete');
 }
 
 function block_access_can_enable($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_ENABLE))
+  return user_access(BLOCK_ACCESS_ALL_ENABLE)
       || block_access_user_access($module, $delta, 'enable');
 }
 
 function block_access_can_disable($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_DISABLE))
+  return user_access(BLOCK_ACCESS_ALL_DISABLE)
       || block_access_user_access($module, $delta, 'disable');
 }
 
 function block_access_can_move($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_MOVE))
+  return user_access(BLOCK_ACCESS_ALL_MOVE)
       || block_access_user_access($module, $delta, 'move');
 }
 
@@ -233,7 +233,7 @@ function block_access_set_allowable_regions($module, $delta, $key, &$form) {
   $default_value = NULL;
   $return = TRUE;
 
-  if (user_access(t(BLOCK_ACCESS_ALL_CONFIG_REGION))) {
+  if (user_access(BLOCK_ACCESS_ALL_CONFIG_REGION)) {
     return TRUE;
   }
 
@@ -262,7 +262,7 @@ function block_access_set_allowable_regions($module, $delta, $key, &$form) {
 function block_access_set_allowable_regions_config($module, $delta, &$form) {
   global $theme;
 
-  if (user_access(t(BLOCK_ACCESS_ALL_CONFIG_REGION))) {
+  if (user_access(BLOCK_ACCESS_ALL_CONFIG_REGION)) {
     return TRUE;
   }
 
@@ -295,16 +295,16 @@ function block_access_set_allowable_regions_config($module, $delta, &$form) {
  * If any of the config perms are on, give access
  */
 function block_access_can_config($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_LANG))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_TITLE))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_DESC))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_BODY))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_REGION))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_TYPE))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_USER))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_ROLE))
-      || user_access(t(BLOCK_ACCESS_ALL_CONFIG_PAGE))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_LANG)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_TITLE)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_DESC)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_BODY)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_REGION)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_TYPE)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_USER)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_ROLE)
+      || user_access(BLOCK_ACCESS_ALL_CONFIG_PAGE)
       || block_access_user_access($module, $delta, 'config')
       || block_access_user_access($module, $delta, 'config_lang')
       || block_access_user_access($module, $delta, 'config_title')
@@ -318,47 +318,47 @@ function block_access_can_config($module, $delta) {
 }
 
 function block_access_can_config_lang($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_LANG))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_LANG)
       || block_access_user_access($module, $delta, 'config_lang');
 }
 
 function block_access_can_config_title($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_TITLE))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_TITLE)
       || block_access_user_access($module, $delta, 'config_title');
 }
 
 function block_access_can_config_description($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_DESC))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_DESC)
       || block_access_user_access($module, $delta, 'config_desc');
 }
 
 function block_access_can_config_body($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_BODY))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_BODY)
       || block_access_user_access($module, $delta, 'config_body');
 }
 
 function block_access_can_config_region($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_REGION))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_REGION)
       || block_access_user_access($module, $delta, 'config_region');
 }
 
 function block_access_can_config_type($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_TYPE))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_TYPE)
       || block_access_user_access($module, $delta, 'config_type_visibility');
 }
 
 function block_access_can_config_user($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_USER))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_USER)
       || block_access_user_access($module, $delta, 'config_user_visibility');
 }
 
 function block_access_can_config_role($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_ROLE))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_ROLE)
       || block_access_user_access($module, $delta, 'config_role_visibility');
 }
 
 function block_access_can_config_page($module, $delta) {
-  return user_access(t(BLOCK_ACCESS_ALL_CONFIG_PAGE))
+  return user_access(BLOCK_ACCESS_ALL_CONFIG_PAGE)
       || block_access_user_access($module, $delta, 'config_page_visibility');
 }
 
